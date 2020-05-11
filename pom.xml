@@ -13,30 +13,45 @@
     <repositories>
         <repository>
             <id>releases</id>
-            <url>file:${project.build.directory}/repos/releases</url>
+            <url>file:${env.HOME}/.repos/releases</url>
             <snapshots><enabled>false</enabled></snapshots>
             <releases><enabled>true</enabled></releases>
         </repository>
         <repository>
             <id>stages</id>
-            <url>file:${project.build.directory}/repos/test-releases</url>
+            <url>file:${env.HOME}/.repos/test-releases</url>
             <snapshots><enabled>false</enabled></snapshots>
             <releases><enabled>true</enabled></releases>
         </repository>
         <repository>
             <id>snapshots</id>
-            <url>file:${project.build.directory}/repos/snapshots</url>
+            <url>file:${env.HOME}/.repos/snapshots</url>
             <snapshots><enabled>true</enabled></snapshots>
             <releases><enabled>false</enabled></releases>
         </repository>
     </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.example</groupId>
+                <artifactId>child1</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>osgi.annotation</artifactId>
+                <version>7.0.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>com.e-gineering</groupId>
                 <artifactId>gitflow-helper-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0-SNAPSHOT</version>
                 <extensions>true</extensions>
                 <configuration>
                     <releaseDeploymentRepository>releases</releaseDeploymentRepository>
@@ -56,8 +71,97 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <version>5.0.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>bnd-process</goal>
+                        </goals>
+                        <configuration>
+                            <bnd><![CDATA[
+-exportcontents: ${packages;ANNOTATED;org.osgi.annotation.versioning.Version}
+                            ]]></bnd>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <configuration>
+                            <propertyPrefix>mvn.</propertyPrefix>
+                            <target>
+                                <echo>${project.version}</echo>
+                                <echo>${mvn.project.version}</echo>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>profile-1</id>
+            <activation>
+                <file>
+                    <exists>profile-1</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>exec-profile-1</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>validate</phase>
+                                <configuration>
+                                    <target>
+                                        <echo>Profile-1</echo>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <modules>
+        <module>child1</module>
+        <module>child2</module>
+    </modules>
+
+    <scm>
+        <connection>scm:git:git://github.com/glimmerveen/gitflow-test.git</connection>
+        <developerConnection>scm:git:git://github.com/glimmerveen/gitflow-test.git</developerConnection>
+    </scm>
 
 
 </project>
