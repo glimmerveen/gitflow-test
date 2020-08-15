@@ -4,38 +4,34 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.example</groupId>
+        <artifactId>project-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath />
+    </parent>
+
     <groupId>org.example</groupId>
     <artifactId>gitflow-test</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
-    <repositories>
-        <repository>
-            <id>releases</id>
-            <url>file:${env.HOME}/.repos/releases</url>
-            <snapshots><enabled>false</enabled></snapshots>
-            <releases><enabled>true</enabled></releases>
-        </repository>
-        <repository>
-            <id>stages</id>
-            <url>file:${env.HOME}/.repos/test-releases</url>
-            <snapshots><enabled>false</enabled></snapshots>
-            <releases><enabled>true</enabled></releases>
-        </repository>
-        <repository>
-            <id>snapshots</id>
-            <url>file:${env.HOME}/.repos/snapshots</url>
-            <snapshots><enabled>true</enabled></snapshots>
-            <releases><enabled>false</enabled></releases>
-        </repository>
-    </repositories>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.example</groupId>
                 <artifactId>child1</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.example</groupId>
+                <artifactId>child2</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.example</groupId>
+                <artifactId>child3a</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -48,55 +44,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>com.e-gineering</groupId>
-                <artifactId>gitflow-helper-maven-plugin</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <releaseDeploymentRepository>releases</releaseDeploymentRepository>
-                    <stageDeploymentRepository>stages</stageDeploymentRepository>
-                    <snapshotDeploymentRepository>snapshots</snapshotDeploymentRepository>
-                    <otherDeployBranchPattern>(origin/)?feature/.*</otherDeployBranchPattern>
-                    <otherBranchVersionDelimiter>-</otherBranchVersionDelimiter>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>set-properties</goal>
-                            <goal>enforce-versions</goal>
-                            <goal>retarget-deploy</goal>
-                            <goal>promote-master</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>biz.aQute.bnd</groupId>
-                <artifactId>bnd-maven-plugin</artifactId>
-                <version>5.0.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>bnd-process</goal>
-                        </goals>
-                        <configuration>
-                            <bnd><![CDATA[
--exportcontents: ${packages;ANNOTATED;org.osgi.annotation.versioning.Version}
-                            ]]></bnd>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-                    </archive>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>3.0.0</version>
@@ -156,6 +103,7 @@
     <modules>
         <module>child1</module>
         <module>child2</module>
+        <module>child3</module>
     </modules>
 
     <scm>
